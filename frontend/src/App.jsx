@@ -1,9 +1,12 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Welcome from './pages/Welcome';
+
 // Import your other components
 import SignUp from './pages/SignUp';
 import SignIn from './pages/SignIn';
+import Welcome from './pages/Welcome';
+import HomePage from './pages/homePage';
+
 
 function App() {
   return (
@@ -13,6 +16,7 @@ function App() {
         {/* Add your other routes */}
         <Route path="/signup" element={<SignUp />} />
         <Route path="/signin" element={<SignIn />} />
+        <Route path="/home" element={<HomePage />} />
       </Routes>
     </BrowserRouter>
   );

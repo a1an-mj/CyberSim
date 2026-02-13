@@ -12,11 +12,35 @@ function SignIn() {
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log('Sign in:', { email, password, rememberMe });
-    // Add your sign in logic here
-  };
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    const response = await fetch("http://localhost:5001/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert(data.message || "Login failed");
+      navigate("/signin")
+      return;
+    }
+
+    // Store token 
+    localStorage.setItem("token", data.jwtToken);
+    alert("Login successful!");
+
+    navigate("/home");
+  } catch (err) {
+    console.error(err);
+    alert("Server error");
+  }
+};
+
 
   const handleSignUp = () => {
     navigate('/signup');
