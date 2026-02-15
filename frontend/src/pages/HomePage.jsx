@@ -4,6 +4,11 @@ import { ShaderGradientCanvas, ShaderGradient } from 'shadergradient';
 import * as reactSpring from '@react-spring/three';
 import * as drei from '@react-three/drei';
 import * as fiber from '@react-three/fiber';
+import { User, LogOut } from 'lucide-react';
+import WifiSelector from '../components/WifiSelector';
+import AttackSelector from '../components/AttackSelector';
+import StartButton from '../components/StartButton';
+import StatusMonitor from '../components/StatusMonitor';
 
 function HomePage() {
   const navigate = useNavigate();
@@ -11,72 +16,42 @@ function HomePage() {
   const [clickPosition, setClickPosition] = useState({ x: 0, y: 0 });
   const [transitionColor, setTransitionColor] = useState('black');
 
-  const handleGetStarted =  (e) => {
-    const rect = e.target.getBoundingClientRect();
-    const x = rect.left + rect.width / 2;
-    const y = rect.top + rect.height / 2;
-
-    setClickPosition({ x, y });
-    setTransitionColor('black');
-    setIsTransitioning(true);
-    
-    setTimeout(() => {
-      navigate('/signup');
-    }, 800);
-  };
-
-  const handleSignIn = (e) => {
-    const rect = e.target.getBoundingClientRect();
-    const x = rect.left + rect.width / 2;
-    const y = rect.top + rect.height / 2;
-    
-    setClickPosition({ x, y });
-    setTransitionColor('white');
-    setIsTransitioning(true);
-    
-    setTimeout(() => {
-      navigate('/signin');
-    }, 800);
-  };
-
   const handleLogOut = async (e) => {
     const rect = e.target.getBoundingClientRect();
     const x = rect.left + rect.width / 2;
     const y = rect.top + rect.height / 2;
 
     try {
-    const response = await fetch("http://localhost:5001/auth/logout", {
+      const response = await fetch("http://localhost:5001/auth/logout", {
         method: "GET",
-    });
-    const data = await response.json();
+      });
+      const data = await response.json();
 
-    if (!response.ok) {
-      alert(data.message || "LogOut failed");
-      navigate("/signin")
-      return;
-    }
+      if (!response.ok) {
+        alert(data.message || "LogOut failed");
+        navigate("/signin");
+        return;
+      }
 
-    localStorage.removeItem('token');
-    alert("Logout successful!");
+      localStorage.removeItem('token');
+      alert("Logout successful!");
 
-    navigate("/");
-    
-    setClickPosition({ x, y });
-    setTransitionColor('black');
-    setIsTransitioning(true);
-    
-    setTimeout(() => {
-      navigate('/');
-    }, 800);
+      setClickPosition({ x, y });
+      setTransitionColor('black');
+      setIsTransitioning(true);
+
+      setTimeout(() => {
+        navigate('/');
+      }, 800);
 
     } catch (err) {
-    console.error(err);
-    alert("Server error");
-  }
+      console.error(err);
+      alert("Server error");
+    }
   };
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden flex items-center justify-center">
+    <div className="relative w-screen h-screen overflow-hidden">
       {/* Shader Background */}
       <div className="absolute inset-0 z-0">
         <ShaderGradientCanvas
@@ -92,42 +67,44 @@ function HomePage() {
           <ShaderGradient
             animate="on"
             axesHelper="off"
-            brightness={1.2}
-            cAzimuthAngle={106}
-            cDistance={6.6}
-            cPolarAngle={30}
-            cameraZoom={1}
-            color1="#9ea0ff"
-            color2="#e1ba83"
-            color3="#d0bce1"
+            bgColor1="#000000"
+            bgColor2="#000000"
+            brightness={1}
+            cAzimuthAngle={180}
+            cDistance={2.8}
+            cPolarAngle={80}
+            cameraZoom={9.1}
+            color1="#00002c"
+            color2="#675ac9"
+            color3="#212121"
             destination="onCanvas"
             embedMode="off"
             envPreset="city"
             format="gif"
-            fov={90}
+            fov={45}
             frameRate={10}
             gizmoHelper="hide"
-            grain="on"
+            grain="off"
             lightType="3d"
             pixelDensity={1}
-            positionX={-1.7}
-            positionY={-0.4}
-            positionZ={1.5}
+            positionX={0}
+            positionY={0}
+            positionZ={0}
             range="disabled"
             rangeEnd={40}
             rangeStart={0}
             reflection={0.1}
-            rotationX={0}
-            rotationY={10}
-            rotationZ={50}
+            rotationX={50}
+            rotationY={0}
+            rotationZ={-60}
             shader="defaults"
-            type="plane"
-            uAmplitude={1}
-            uDensity={1.7}
-            uFrequency={5.5}
-            uSpeed={0.4}
-            uStrength={4}
-            uTime={0}
+            type="waterPlane"
+            uAmplitude={0}
+            uDensity={1.5}
+            uFrequency={0}
+            uSpeed={0.3}
+            uStrength={1.5}
+            uTime={8}
             wireframe={false}
             zoomOut={false}
           />
@@ -155,40 +132,53 @@ function HomePage() {
         </div>
       )}
 
-      {/* Content */}
-      <div className="relative z-10 text-center">
-        <h1 className="text-7xl md:text-8xl font-bold tracking-[0.5rem] mb-4 font-mono">
-          C y b e r S i m
+      {/* Top Navigation Bar */}
+      <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-center p-6">
+        <h1 className="text-3xl font-bold tracking-widest text-white font-mono">
+          CyberSim
         </h1>
-        <p className="text-xl mb-16 font-mono">
-          - Simulating Threats to Strengthen Defenses
-        </p>
-        {/* Buttons */}
-        <div className="flex items-center justify-center gap-8 flex-wrap">
-          <button 
-            onClick={handleGetStarted}
-            disabled={isTransitioning}
-            className="px-12 py-4 text-xl bg-white/70 backdrop-blur-md rounded-full shadow-lg hover:bg-white/90 hover:-translate-y-1 hover:shadow-xl transition-all duration-300 font-mono disabled:opacity-50"
-          >
-            Get started
+        <div className="absolute right-6 flex items-center gap-4">
+          <button className="text-white/80 hover:text-white transition-colors">
+            <User className="w-6 h-6" />
           </button>
-          <span className="text-xl font-medium font-mono">or</span>
-          <button 
-            onClick={handleSignIn}
-            disabled={isTransitioning}
-            className="px-12 py-4 text-xl bg-white/70 backdrop-blur-md rounded-full shadow-lg hover:bg-white/90 hover:-translate-y-1 hover:shadow-xl transition-all duration-300 font-mono disabled:opacity-50"
-          >
-            Sign In
-          </button>
-          <span className="text-xl font-medium font-mono">or</span>
           <button 
             onClick={handleLogOut}
             disabled={isTransitioning}
-            className="px-12 py-4 text-xl bg-white/70 backdrop-blur-md rounded-full shadow-lg hover:bg-white/90 hover:-translate-y-1 hover:shadow-xl transition-all duration-300 font-mono disabled:opacity-50"
+            className="text-white/80 hover:text-white transition-colors disabled:opacity-50"
           >
-            Sign Out
+            <LogOut className="w-6 h-6" />
           </button>
         </div>
+      </div>
+
+      {/* Content Container */}
+      <div className="relative z-10 flex items-center justify-center h-full">
+        <div className="flex flex-col items-center gap-6">
+          {/* Top Row - WiFi and Attack Selectors */}
+          <div className="flex gap-6">
+            <WifiSelector />
+            <AttackSelector />
+          </div>
+          
+          {/* Middle Row - Start Button */}
+          <div className="flex justify-center">
+            <StartButton />
+          </div>
+          
+          {/* Bottom Row - Status Monitor */}
+          <div className="flex justify-center">
+            <StatusMonitor />
+          </div>
+        </div>
+      </div>
+
+      {/* Hamburger Menu - Top Left */}
+      <div className="absolute top-6 left-6 z-20">
+        <button className="text-white/80 hover:text-white transition-colors">
+          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
       </div>
 
       <style jsx>{`

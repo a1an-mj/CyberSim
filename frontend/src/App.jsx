@@ -5,7 +5,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import SignUp from './pages/SignUp';
 import SignIn from './pages/SignIn';
 import Welcome from './pages/Welcome';
-import HomePage from './pages/homePage';
+import HomePage from './pages/HomePage';
 
 
 function App() {
