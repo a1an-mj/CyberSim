@@ -8,7 +8,7 @@ __pycache__/
 data/
 
 
-FRONTEND/node_modules
+FRONTEND/node_modules/
 
 
 .env
