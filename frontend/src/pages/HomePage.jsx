@@ -9,6 +9,7 @@ import WifiSelector from '../components/WifiSelector';
 import AttackSelector from '../components/AttackSelector';
 import StartButton from '../components/StartButton';
 import StatusMonitor from '../components/StatusMonitor';
+import TestModel from '../components/TestModel';
 
 function HomePage() {
   const navigate = useNavigate();
@@ -168,6 +169,9 @@ function HomePage() {
           {/* Bottom Row - Status Monitor */}
           <div className="flex justify-center">
             <StatusMonitor />
+          </div>
+          <div>
+            <TestModel/>
           </div>
         </div>
       </div>
