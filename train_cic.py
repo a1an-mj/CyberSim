@@ -89,7 +89,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 
 
 
-model = RandomForestClassifier(n_estimators=100, n_jobs=-1)
+model = RandomForestClassifier(n_estimators=100, n_jobs=-1,verbose=1)
 model.fit(X_train, y_train)
 
 y_pred = model.predict(X_test)

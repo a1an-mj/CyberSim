@@ -1,16 +1,20 @@
 import React, { useState } from 'react';
 import { CheckCircle2, X, Maximize2, Loader2 } from 'lucide-react';
 
-function TestModel() {
-  const [stage, setStage] = useState('initial'); // added 'retrained_tested'
+function TestModel({ onAttackDetected }) {
+  const [stage, setStage] = useState('initial');
   const [isZooming, setIsZooming] = useState(false);
   const [noiseLevel, setNoiseLevel] = useState(0.45);
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const [initialResult, setInitialResult] = useState({ prediction: 0, result: "Benign" });
   const [noiseResult, setNoiseResult] = useState({ prediction: 0, result: "Benign" });
   const [retrainedResult, setRetrainedResult] = useState({ prediction: 0, result: "Benign" });
-  const [retrainedTestResult, setRetrainedTestResult] = useState({ prediction: 0, result: "Benign" }); // NEW
+  const [retrainedTestResult, setRetrainedTestResult] = useState({ prediction: 0, result: "Benign" });
+
+  const notifyAttackStatus = (result) => {
+    if (onAttackDetected) onAttackDetected(result.toLowerCase() !== 'benign');
+  };
 
   const FEATURES = [80,1293792,3,7,26,11607,20,0,8.666666667,10.26320288,5840,0,1658.142857,2137.29708,8991.398927,7.72921768,143754.6667,430865.8067,1292730,2,747,373.5,523.9661249,744,3,1293746,215624.3333,527671.9348,1292730,2,0,0,0,0,72,152,2.318765304,5.410452376,0,5840,1057.545455,1853.437529,3435230.673,0,0,0,1,0,0,0,0,2,1163.3,8.666666667,1658.142857,72,0,0,0,0,0,0,3,26,7,11607,8192,229,2,20,0,0,0,0,0,0,0,0];
 
@@ -37,6 +41,7 @@ function TestModel() {
     const result = await sendPredictionRequest('http://localhost:8000/predict', FEATURES);
     if (result) {
       setInitialResult({ prediction: result.prediction, result: result.result });
+      notifyAttackStatus(result.result);
       handleExpand('noise');
     }
   };
@@ -52,7 +57,8 @@ function TestModel() {
       const data = await response.json();
       if (!response.ok) { alert('Request failed: ' + (data.message || 'Unknown error')); setIsLoading(false); return; }
       setIsLoading(false);
-      setNoiseResult({ prediction: data.prediction, result: data.result });
+      setNoiseResult({ prediction: data.prediction_after_attack, result: data.result });
+      notifyAttackStatus(data.result);
       handleExpand('results');
     } catch (error) {
       alert('Error: ' + error.message);
@@ -78,11 +84,11 @@ function TestModel() {
     }
   };
 
-  // NEW handler — calls /predict after retraining
   const handleRetrainedTest = async () => {
     const result = await sendPredictionRequest('http://localhost:8000/predict', FEATURES);
     if (result) {
       setRetrainedTestResult({ prediction: result.prediction, result: result.result });
+      notifyAttackStatus(result.result);
       handleExpand('retrained_tested');
     }
   };
@@ -93,6 +99,7 @@ function TestModel() {
   };
 
   // ── Shared sub-components ──────────────────────────────────────────────────
+
   const CardHeader = ({ showClose = false }) => (
     <div className="flex items-center justify-between mb-6">
       <div className="flex items-center gap-3">
@@ -102,7 +109,7 @@ function TestModel() {
         <h2 className="text-white font-medium text-lg">Test Model</h2>
       </div>
       {showClose ? (
-        <button onClick={() => setStage('initial')} className="text-zinc-400 hover:text-white transition-all duration-300 hover:scale-110 hover:rotate-90">
+        <button onClick={() => { setStage('initial'); if (onAttackDetected) onAttackDetected(false); }} className="text-zinc-400 hover:text-white transition-all duration-300 hover:scale-110 hover:rotate-90">
           <X className="w-5 h-5" />
         </button>
       ) : (
@@ -121,7 +128,7 @@ function TestModel() {
   );
 
   const ResultBox = ({ prediction, result }) => (
-    <div className="bg-zinc-900/60 rounded-lg p-4">
+    <div className="bg-zinc-900/60 rounded-lg p-4 border border-zinc-700/50">
       <div className="font-mono text-xs space-y-1">
         <div className="text-zinc-400">Prediction : <span className="text-red-400">{prediction}</span></div>
         <div className="text-zinc-400">Result&nbsp;&nbsp;&nbsp;&nbsp; : <span className="text-green-400">"{result}"</span></div>
@@ -152,11 +159,20 @@ function TestModel() {
     </div>
   );
 
-  const cardClass = "bg-gradient-to-b from-zinc-700/80 to-zinc-800/80 backdrop-blur-sm rounded-2xl p-6 w-80 border border-zinc-600 shadow-2xl";
+  const isAttack = (result) => result.toLowerCase() !== 'benign';
+
+  const cardBg = (stage === 'noise' && isAttack(initialResult.result)) ||
+                 (stage === 'results' && isAttack(noiseResult.result)) ||
+                 (stage === 'retrained' && isAttack(noiseResult.result)) ||
+                 (stage === 'retrained_tested' && isAttack(retrainedTestResult.result))
+    ? 'bg-red-900/20'
+    : 'bg-zinc-800/30';
+
+  const cardClass = `relative overflow-hidden ${cardBg} backdrop-blur-sm rounded-2xl p-5 w-72 border border-zinc-600/60 shadow-2xl transition-colors duration-500`;
 
   return (
     <div className="relative">
-      <style jsx>{`
+      <style>{`
         @keyframes slideInScale {
           0% { opacity: 0; transform: scale(0.9) translateY(-10px); }
           100% { opacity: 1; transform: scale(1) translateY(0); }
@@ -167,9 +183,34 @@ function TestModel() {
           100% { transform: scale(1); }
         }
         .model-enter { animation: slideInScale 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        .model-zoom { animation: zoomIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .model-zoom  { animation: zoomIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+        /* Range slider thumb styling to match the zinc palette */
+        input[type='range']::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          width: 14px;
+          height: 14px;
+          border-radius: 50%;
+          background: #ffffff;
+          cursor: pointer;
+          box-shadow: 0 0 0 2px rgba(255,255,255,0.15);
+          transition: transform 0.15s ease;
+        }
+        input[type='range']::-webkit-slider-thumb:hover {
+          transform: scale(1.2);
+        }
+        input[type='range']::-moz-range-thumb {
+          width: 14px;
+          height: 14px;
+          border-radius: 50%;
+          background: #ffffff;
+          cursor: pointer;
+          border: none;
+          box-shadow: 0 0 0 2px rgba(255,255,255,0.15);
+        }
       `}</style>
 
+      {/* ── initial ── */}
       {stage === 'initial' && (
         <div className={`${cardClass} transition-all duration-300 ${isZooming ? 'model-zoom' : ''}`}>
           <CardHeader />
@@ -180,6 +221,7 @@ function TestModel() {
         </div>
       )}
 
+      {/* ── noise ── */}
       {stage === 'noise' && (
         <div className={`model-enter ${cardClass}`}>
           <CardHeader showClose />
@@ -201,6 +243,7 @@ function TestModel() {
         </div>
       )}
 
+      {/* ── results ── */}
       {stage === 'results' && (
         <div className={`model-enter ${cardClass}`}>
           <CardHeader showClose />
@@ -214,6 +257,7 @@ function TestModel() {
         </div>
       )}
 
+      {/* ── retrained ── */}
       {stage === 'retrained' && (
         <div className={`model-enter ${cardClass}`}>
           <CardHeader showClose />
@@ -226,13 +270,12 @@ function TestModel() {
               <div className="font-mono text-sm text-white">Retrained model:</div>
               <ResultBox prediction={retrainedResult.prediction} result={retrainedResult.result} />
             </div>
-            {/* NEW: Test button after retraining */}
             <ActionButton onClick={handleRetrainedTest} disabled={isLoading} loadingLabel="Testing..." label="Test" />
           </div>
         </div>
       )}
 
-      {/* NEW stage: retrained_tested */}
+      {/* ── retrained_tested ── */}
       {stage === 'retrained_tested' && (
         <div className={`model-enter ${cardClass}`}>
           <CardHeader showClose />
