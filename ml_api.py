@@ -28,12 +28,19 @@ y_train = joblib.load("y_train.pkl")
 
 class FlowInput(BaseModel):
     features: List[float]
+    target : str
+    
+class AttackInput(BaseModel):
+    features: List[float]
+    target : str
+    noise : int
 
 
 @app.post("/predict")
 def predict(data: FlowInput):
 
     arr = np.array(data.features).reshape(1, -1)
+    target = data.target
 
     # Validate feature count
     if arr.shape[1] != scaler.n_features_in_:
@@ -57,20 +64,23 @@ def predict(data: FlowInput):
     prediction = model.predict(pca_data)
 
     return {
-        "prediction": int(prediction[0]),
-        "result": "Attack" if prediction[0] == 1 else "Benign"
+        "prediction": (prediction[0]),
+        "target": target
     }
+    # "Attack" if prediction[0] == 1 else "Benign"
 
 
 @app.post("/attack")
-def attack(data: FlowInput):
+def attack(data: AttackInput):
 
     arr = np.array(data.features).reshape(1, -1)
+    target = data.target
+    noise = data.noise
 
     scaled = scaler.transform(arr)
 
     # Simulated adversarial perturbation
-    noise = np.random.normal(0, 1.5, scaled.shape)
+    noise = np.random.normal(0, data.noise, scaled.shape)
     attacked = scaled + noise
 
     k_label = kmeans.predict(attacked)
@@ -82,8 +92,8 @@ def attack(data: FlowInput):
     prediction = model.predict(pca_data)
 
     return {
-        "prediction_after_attack": int(prediction[0]),
-        "result": "Attack" if prediction[0] == 1 else "Benign"
+        "prediction": (prediction[0]),
+        "target": target
     }
 
 
