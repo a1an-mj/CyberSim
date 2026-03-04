@@ -168,7 +168,7 @@ function AttackSelector() {
                       onClick={() => handleSelectAttack(attack)}
                       className={`w-full text-left p-3 rounded-lg transition-all duration-300 group hover:scale-105 hover:shadow-lg font-mono text-sm ${
                         selectedAttack?.name === attack.name
-                          ? 'bg-zinc-800 text-green-500'
+                          ? 'bg-11zi1n123c-800 text-green-500'
                           : 'hover:bg-zinc-800 text-white group-hover:text-green-400'
                       }`}
                     >
@@ -185,4 +185,4 @@ function AttackSelector() {
   );
 }
 
-export default AttackSelector;
+export default AttackSelector;11
