@@ -44,10 +44,35 @@ function AttackSelector() {
     }, 300);
   };
 
-  const handleSelectAttack = (attack) => {
-    setSelectedAttack(attack);
-    setIsExpanded(false);
-  };
+  const handleSelectAttack = async (attack) => {
+  setSelectedAttack(attack);
+  setIsExpanded(false);
+  setIsLoading(true);
+
+  try {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ features })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert('Request failed: ' + (data.message || 'Unknown error'));
+      setIsLoading(false);
+      return null;
+    }
+
+    setIsLoading(false);
+    return data;
+
+  } catch (error) {
+    alert('Error: ' + error.message);
+    setIsLoading(false);
+    return null;
+  }
+};
 
   return (
     <div className="relative">

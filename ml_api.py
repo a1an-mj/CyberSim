@@ -26,6 +26,9 @@ X_train = joblib.load("X_train.pkl")
 y_train = joblib.load("y_train.pkl")
 
 
+#csv
+
+
 class FlowInput(BaseModel):
     features: List[float]
     target : str
