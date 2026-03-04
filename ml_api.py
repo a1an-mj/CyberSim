@@ -4,6 +4,10 @@ from pydantic import BaseModel
 from typing import List
 import joblib
 import numpy as np
+import pandas as pd
+import os
+import random
+import kagglehub
 
 app = FastAPI()
 
@@ -26,8 +30,22 @@ X_train = joblib.load("X_train.pkl")
 y_train = joblib.load("y_train.pkl")
 
 
-class FlowInput(BaseModel):
-    features: List[float]
+#csv
+
+path = kagglehub.dataset_download("chethuhn/network-intrusion-dataset")
+all_files = [f for f in os.listdir(path) if f.endswith(".csv")]
+
+dfs = []
+for file in all_files:
+    df = pd.read_csv(os.path.join(path, file))
+    dfs.append(df)
+
+datas = pd.concat(dfs, ignore_index=True)
+datas.columns=datas.columns.str.strip()
+
+
+
+class FlowInput(BaseModel):    
     target : str
     
 class AttackInput(BaseModel):
@@ -39,8 +57,27 @@ class AttackInput(BaseModel):
 @app.post("/predict")
 def predict(data: FlowInput):
 
-    arr = np.array(data.features).reshape(1, -1)
     target = data.target
+
+
+    #from csv files
+    attack_rows=datas[datas["Label"].str.contains(target,case=False)]
+
+    if attack_rows.empty:
+        return{"error":"no data available for current type of attack"}
+
+    random_row=attack_rows.sample(n=1)
+
+    # actual_label=random_row["Label"].values[0]
+
+    features=random_row.drop("Label",axis=1)
+    #..
+
+
+
+
+    arr = np.array(features).reshape(1, -1)
+    
 
     # Validate feature count
     if arr.shape[1] != scaler.n_features_in_:
@@ -64,6 +101,7 @@ def predict(data: FlowInput):
     prediction = model.predict(pca_data)
 
     return {
+        "features" : arr.flatten().tolist(),
         "prediction": (prediction[0]),
         "target": target
     }
