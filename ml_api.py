@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 import os
 import random
+
 import kagglehub
 
 app = FastAPI()
@@ -32,6 +33,7 @@ y_train = joblib.load("y_train.pkl")
 
 #csv
 
+
 path = kagglehub.dataset_download("chethuhn/network-intrusion-dataset")
 all_files = [f for f in os.listdir(path) if f.endswith(".csv")]
 
@@ -45,7 +47,8 @@ datas.columns=datas.columns.str.strip()
 
 
 
-class FlowInput(BaseModel):    
+
+class FlowInput(BaseModel):
     target : str
     
 class AttackInput(BaseModel):
@@ -56,10 +59,7 @@ class AttackInput(BaseModel):
 
 @app.post("/predict")
 def predict(data: FlowInput):
-
     target = data.target
-
-
     #from csv files
     attack_rows=datas[datas["Label"].str.contains(target,case=False)]
 
@@ -67,17 +67,10 @@ def predict(data: FlowInput):
         return{"error":"no data available for current type of attack"}
 
     random_row=attack_rows.sample(n=1)
-
     # actual_label=random_row["Label"].values[0]
-
     features=random_row.drop("Label",axis=1)
-    #..
 
-
-
-
-    arr = np.array(features).reshape(1, -1)
-    
+    arr = np.array(features).reshape(1, -1)    
 
     # Validate feature count
     if arr.shape[1] != scaler.n_features_in_:
