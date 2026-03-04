@@ -4,6 +4,9 @@ from pydantic import BaseModel
 from typing import List
 import joblib
 import numpy as np
+import pandas as pd
+import os
+import random
 
 app = FastAPI()
 
@@ -26,8 +29,27 @@ X_train = joblib.load("X_train.pkl")
 y_train = joblib.load("y_train.pkl")
 
 
+#csv
+
+data_folder="data/cic"
+
+csv_files=[
+    f for f in os.listdir(data_folder)
+    if "WorkingHours" in f and f.endswith(".csv")
+]
+
+df_list=[]
+
+for file in csv_files:
+    df=pd.read_csv(os.path.join(data_folder,file))
+    df_list.append(df)
+df_full=pd.concat(df_list,ignore_index=True)
+df_full.columns=df_full.columns.str.strip()
+
+
+
 class FlowInput(BaseModel):
-    features: List[float]
+    
     target : str
     
 class AttackInput(BaseModel):
@@ -39,8 +61,27 @@ class AttackInput(BaseModel):
 @app.post("/predict")
 def predict(data: FlowInput):
 
-    arr = np.array(data.features).reshape(1, -1)
     target = data.target
+
+
+    #from csv files
+    attack_rows=df_full[df_full["Label"].str.contains(target,case=False)]
+
+    if attack_rows.empty:
+        return{"error":"no data available for current type of attack"}
+
+    random_row=attack_rows.sample(n=1)
+
+    actual_label=random_row["Label"].values[0]
+
+    features=random_row.drop("Label",axis=1)
+    #..
+
+
+
+
+    arr = np.array(features).reshape(1, -1)
+    
 
     # Validate feature count
     if arr.shape[1] != scaler.n_features_in_:
