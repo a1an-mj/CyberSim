@@ -32,7 +32,7 @@ function SignIn() {
 
     // Store token 
     localStorage.setItem("token", data.jwtToken);
-    alert("Login successful!");
+    // alert("Login successful!");
 
     navigate("/home");
   } catch (err) {

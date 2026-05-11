@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { CheckCircle2, X, Maximize2, Loader2 } from 'lucide-react';
 
-function TestModel({ onAttackDetected, attack, onRunningChange }) {
+function TestModel({ onAttackDetected, attack, onRunningChange, onFinished }) {
   const [stage, setStage] = useState('initial');
   const [isZooming, setIsZooming] = useState(false);
   const [noiseLevel, setNoiseLevel] = useState(0.45);
@@ -42,11 +42,11 @@ function TestModel({ onAttackDetected, attack, onRunningChange }) {
 
   const handleInitialTest = async () => {
     console.log(attack)
-    if (onRunningChange) onRunningChange(true);
+
+    onRunningChange("started");
     const result = await sendPredictionRequest('http://localhost:8000/predict', attack);
     if (result) {
-      setSelectedFeatures(result.features[0]);    // ✅ STORE FEATURES
-
+      setSelectedFeatures(result.features[0]); // ✅ STORE FEATURES
       setInitialResult({ 
       prediction: result.prediction, 
       result: result.result
@@ -148,11 +148,17 @@ const handleRetrainedTest = async () => {
       alert('Request failed');
       return;
     }
+    onRunningChange("finished");
 
     setRetrainedTestResult({
       prediction: data.prediction,
       result: data.result
     });
+
+    setRetrainedTestResult({ prediction: data.prediction, result: data.result });
+  notifyAttackStatus(data.result);
+  handleExpand('retrained_tested');
+  if (onFinished) onFinished(); 
 
     notifyAttackStatus(data.result);
     handleExpand('retrained_tested');

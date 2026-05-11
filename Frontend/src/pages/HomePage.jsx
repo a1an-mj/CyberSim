@@ -8,8 +8,9 @@ import { User, LogOut } from 'lucide-react';
 import WifiSelector from '../components/WifiSelector';
 import AttackSelector from '../components/AttackSelector';
 import StartButton from '../components/StartButton';
-import StatusMonitor from '../components/StatusMonitor';
+// import StatusMonitor from '../components/StatusMonitor';
 import TestModel from '../components/TestModel';
+import AttackInfoCard from '../components/AttackInfoCard';
 
 // ── Color themes (as [r,g,b] for easy interpolation) ────────────────────────
 const THEMES = {
@@ -28,10 +29,11 @@ const TRANSITION_MS = 1400;
 function HomePage() {
   const navigate = useNavigate();
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [attack, setattack] = useState(null);
+  const [attack, setAttack] = useState(null);
   const [clickPosition, setClickPosition]     = useState({ x: 0, y: 0 });
   const [transitionColor, setTransitionColor] = useState('black');
-  const [isRunning, setIsRunning] = useState(false);
+  const [isRunning, setIsRunning] = useState("idle");
+  const [buttonStatus, setButtonStatus] = useState('idle');
 
   // Live-interpolated shader colors
   const [shaderColors, setShaderColors] = useState({
@@ -105,7 +107,7 @@ function HomePage() {
       const data = await response.json();
       if (!response.ok) { alert(data.message || 'LogOut failed'); navigate('/signin'); return; }
       localStorage.removeItem('token');
-      alert('Logout successful!');
+      // alert('Logout successful!');
       setClickPosition({ x, y });
       setTransitionColor('black');
       setIsTransitioning(true);
@@ -212,7 +214,7 @@ function HomePage() {
       )}
 
       {/* ── Top Nav ──────────────────────────────────────────────────────── */}
-      <div className="fixed top-0 left-0 right-0 z-20 flex items-center justify-center p-6 bg-gradient-to-b from-black/50 to-transparent">
+      <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-center p-6 bg-gradient-to-b from-black/50 to-transparent">
         <h1 className="text-3xl font-bold tracking-widest text-white font-mono">CyberSim</h1>
         <div className="absolute right-6 flex items-center gap-4">
           <button className="text-white/80 hover:text-white transition-colors">
@@ -224,31 +226,41 @@ function HomePage() {
         </div>
       </div>
 
-      {/* ── Hamburger ────────────────────────────────────────────────────── */}
-      <div className="fixed top-6 left-6 z-20">
-        <button className="text-white/80 hover:text-white transition-colors">
-          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        </button>
-      </div>
+
+
+
 
       {/* ── Page Content ─────────────────────────────────────────────────── */}
       <div className="relative z-10 min-h-screen pt-24 pb-12 px-6">
         <div className="flex flex-col items-center gap-6 max-w-7xl mx-auto">
           <div className="flex flex-wrap justify-center gap-6">
             {/* <WifiSelector /> */}
-            <AttackSelector sattack={setattack}/>
+            <AttackSelector sattack={setAttack}/>
           </div>
+          <div className="flex flex-wrap justify-center gap-6">
+            {/* <WifiSelector /> */}
+            <AttackInfoCard sattack={attack} />
+          </div>
+
+         
+
           <div className="flex justify-center">
-            <StartButton onRunningChange={setIsRunning}/>
+            <StartButton 
+  buttonStatus={buttonStatus}
+  isRunning={isRunning}
+  onReset={() => setButtonStatus('idle')}/>
           </div>
-          <div className="flex justify-center w-full">
+          {/* <div className="flex justify-center w-full">
             <StatusMonitor isRunning={isRunning}/>
-          </div>
+          </div> */}
           {/* ref wrapper lets us measure the card's screen position */}
           <div className="w-full flex justify-center" ref={testModelRef}>
-            <TestModel onAttackDetected={handleAttackDetected} attack={attack} onRunningChange={setIsRunning}/>
+            <TestModel
+  attack={attack?.name ?? null}
+  onAttackDetected={handleAttackDetected}
+  onRunningChange={setIsRunning}
+  onFinished={() => setButtonStatus('finished')}
+/>
           </div>
         </div>
       </div>

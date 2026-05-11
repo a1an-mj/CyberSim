@@ -7,48 +7,109 @@ function AttackSelector({ sattack }) {
   const [isZooming, setIsZooming] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const attackGroups = [
-    {
-      category: "Benign",
-      attacks: [
-        { name: "BENIGN", fullName: "BENIGN" }
-      ]
-    },
-    {
-      category: "DoS / DDoS",
-      attacks: [
-        { name: "Bot", fullName: "Bot" },
-        { name: "DDoS", fullName: "DDoS" },
-        { name: "DoS GoldenEye", fullName: "DoS GoldenEye" },
-        { name: "DoS Hulk", fullName: "DoS Hulk" },
-        { name: "DoS Slowhttptest", fullName: "DoS Slowhttptest" },
-        { name: "DoS slowloris", fullName: "DoS slowloris" }
-      ]
-    },
-    {
-      category: "Brute Force",
-      attacks: [
-        { name: "FTP-Patator", fullName: "FTP-Patator" },
-        { name: "SSH-Patator", fullName: "SSH-Patator" }
-      ]
-    },
-    {
-      category: "Infiltration & Scanning",
-      attacks: [
-        { name: "Heartbleed", fullName: "Heartbleed" },
-        { name: "Infiltration", fullName: "Infiltration" },
-        { name: "PortScan", fullName: "PortScan" }
-      ]
-    },
-    {
-      category: "Web Attacks",
-      attacks: [
-        { name: "Web Attack � Brute Force", fullName: "Web Attack � Brute Force" },
-        { name: "Web Attack � Sql Injection", fullName: "Web Attack � Sql Injection" },
-        { name: "Web Attack � XSS", fullName: "Web Attack � XSS" }
-      ]
-    }
-  ];
+
+const attackGroups = [
+  {
+    category: "Benign",
+    attacks: [
+      {
+        name: "BENIGN",
+        fullName: "BENIGN",
+        description: `Normal, safe network traffic that occurs during everyday use of devices and servers. There is no hacking or malicious activity involved. This data serves as a baseline so security systems can learn what regular behavior looks like and better spot suspicious activity.`
+      }
+    ]
+  },
+  {
+    category: "DoS / DDoS",
+    attacks: [
+      {
+        name: "Bot",
+        fullName: "Bot",
+        description: `A bot attack uses computers or devices secretly infected and controlled by an attacker. These compromised machines can automatically send spam, scan networks, or collectively launch massive cyber attacks. Often, owners are unaware their device is part of a botnet. Bot attacks are commonly used to flood websites and spread harmful activities online.`
+      },
+      {
+        name: "DDoS",
+        fullName: "DDoS",
+        description: `A Distributed Denial of Service attack overwhelms a website or server with a flood of fake traffic, making it inaccessible to real users. This is done by using many compromised devices simultaneously. DDoS attacks frequently target big companies, gaming servers, and popular online services.`
+      },
+      {
+        name: "DoS GoldenEye",
+        fullName: "DoS GoldenEye",
+        description: `GoldenEye is a DoS attack that bombards web servers with a huge volume of fake requests to drain their resources. This causes the website to slow down or crash entirely. The requests are crafted specifically to keep the server under constant stress, severely affecting performance and user experience.`
+      },
+      {
+        name: "DoS Hulk",
+        fullName: "DoS Hulk",
+        description: `DoS Hulk aggressively sends continuous, massive traffic to a server by generating random requests at high speed. This consumes bandwidth, memory, and processing power, eventually causing the website to stop responding to genuine users. It is one of the more powerful denial-of-service methods targeting web applications.`
+      },
+      {
+        name: "DoS Slowhttptest",
+        fullName: "DoS Slowhttptest",
+        description: `This attack works slowly by holding many connections open for a long time, quietly exhausting the server's ability to accept new ones. Rather than flooding with traffic, it uses minimal bandwidth, which can help it evade basic detection. The end result is the same—legitimate users find the website inaccessible.`
+      },
+      {
+        name: "DoS slowloris",
+        fullName: "DoS slowloris",
+        description: `Slowloris attacks by sending incomplete HTTP requests and keeping them open as long as possible, causing the server to wait and eventually run out of available connections. Even a small amount of traffic can disable a vulnerable server. It's dangerous because it's simple, effective, and often hard to detect promptly.`
+      }
+    ]
+  },
+  {
+    category: "Brute Force",
+    attacks: [
+      {
+        name: "FTP-Patator",
+        fullName: "FTP-Patator",
+        description: `FTP-Patator is a brute force attack that repeatedly tries username and password combinations to break into FTP servers. Attackers aim to guess correct login details and gain unauthorized entry. Weak passwords greatly increase the success rate. Once inside, attackers can steal, change, or delete crucial files.`
+      },
+      {
+        name: "SSH-Patator",
+        fullName: "SSH-Patator",
+        description: `SSH-Patator targets secure remote login systems (SSH) by repeatedly testing passwords until it finds the right one. Servers with weak or reused passwords are especially at risk. A successful break-in can give attackers full remote control over the system.`
+      }
+    ]
+  },
+  {
+    category: "Infiltration & Scanning",
+    attacks: [
+      {
+        name: "Heartbleed",
+        fullName: "Heartbleed",
+        description: `Heartbleed is a critical bug in some versions of OpenSSL that lets attackers secretly read a server's memory. This can expose sensitive data like passwords, encryption keys, and private user information. It became one of the most famous internet security vulnerabilities in history.`
+      },
+      {
+        name: "Infiltration",
+        fullName: "Infiltration",
+        description: `Infiltration is when attackers sneak into a network without authorization. They typically use malware, backdoors, or already compromised devices to remain hidden. Once inside, they can steal data, spy on activity, or move deeper into the network. These attacks are especially dangerous because they can go unnoticed for a long time.`
+      },
+      {
+        name: "PortScan",
+        fullName: "PortScan",
+        description: `Port scanning is a method used to discover which services are active on a system by probing its network ports. Attackers use it to find weak spots and vulnerable applications before launching a bigger attack. Security professionals also use port scans to check and strengthen their own defenses.`
+      }
+    ]
+  },
+  {
+    category: "Web Attacks",
+    attacks: [
+      {
+        name: "Web Attack – Brute Force",
+        fullName: "Web Attack – Brute Force",
+        description: `This web attack repeatedly guesses usernames and passwords on a website’s login page to gain unauthorized access. Weak passwords or lack of account lockout mechanisms make it much easier. Attackers often target admin panels, online banking, and any login-based system.`
+      },
+      {
+        name: "Web Attack – Sql Injection",
+        fullName: "Web Attack – Sql Injection",
+        description: `SQL Injection occurs when attackers insert harmful database commands into website input fields. If the site lacks proper security, they can directly manipulate or access the backend database, potentially exposing usernames, passwords, and financial data. It remains one of the most critical threats to web applications.`
+      },
+      {
+        name: "Web Attack – XSS",
+        fullName: "Web Attack – XSS",
+        description: `Cross-site scripting (XSS) lets attackers inject harmful scripts into web pages. When other users visit the page, the malicious code runs in their browser, allowing the attacker to steal session cookies, track activity, or redirect them to unsafe sites. This happens when websites don't properly check user input.`
+      }
+    ]
+  }
+];
 
   const handleExpand = () => {
     setIsZooming(true);
@@ -59,13 +120,10 @@ function AttackSelector({ sattack }) {
   };
 
   const handleSelectAttack = async (attack) => {
-    setSelectedAttack(attack);
-    setIsExpanded(false);
-    setIsLoading(true);
-    console.log(attack);
-    sattack(attack.name);
-    setIsLoading(false);
-  };
+  setSelectedAttack(attack);
+  setIsExpanded(false);
+  sattack(attack);          // ← pass full object, not attack.name
+};
 
   return (
     <div className="relative">

@@ -46,7 +46,7 @@ function SignUp() {
     const data = await response.json();
 
     if (response.ok) {
-      alert('User registered successfully! ');
+      // alert('User registered successfully! ');
       console.log("Userdata:",data.user)
       navigate('/signin');
     } else {
