@@ -93,17 +93,17 @@ const attackGroups = [
     category: "Web Attacks",
     attacks: [
       {
-        name: "Web Attack – Brute Force",
+        name: "Brute Force",
         fullName: "Web Attack – Brute Force",
         description: `This web attack repeatedly guesses usernames and passwords on a website’s login page to gain unauthorized access. Weak passwords or lack of account lockout mechanisms make it much easier. Attackers often target admin panels, online banking, and any login-based system.`
       },
       {
-        name: "Web Attack – Sql Injection",
+        name: "Sql Injection",
         fullName: "Web Attack – Sql Injection",
         description: `SQL Injection occurs when attackers insert harmful database commands into website input fields. If the site lacks proper security, they can directly manipulate or access the backend database, potentially exposing usernames, passwords, and financial data. It remains one of the most critical threats to web applications.`
       },
       {
-        name: "Web Attack – XSS",
+        name: "XSS",
         fullName: "Web Attack – XSS",
         description: `Cross-site scripting (XSS) lets attackers inject harmful scripts into web pages. When other users visit the page, the malicious code runs in their browser, allowing the attacker to steal session cookies, track activity, or redirect them to unsafe sites. This happens when websites don't properly check user input.`
       }
